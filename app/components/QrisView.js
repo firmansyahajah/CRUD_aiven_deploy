@@ -1,20 +1,16 @@
 'use client';
 
-import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 import { formatRupiah } from '../../lib/format';
 
-// Tampilan saja. Payload dihitung di PaymentDialog lewat buildDynamicQris.
 export default function QrisView({ payload, error, loading, storeName, amount }) {
   if (loading) return <p className="muted py-10 text-center">Memuat...</p>;
 
-  if (error) {
+  // Jika benar-benar tidak ada payload, baru tampilkan error penuh
+  if (!payload) {
     return (
       <div className="alert" role="alert">
-        <p>{error}</p>
-        <Link href="/pengaturan" className="mt-1 inline-block font-medium underline">
-          Buka Pengaturan
-        </Link>
+        <p>{error || 'Gagal memuat QR Code.'}</p>
       </div>
     );
   }
@@ -25,10 +21,14 @@ export default function QrisView({ payload, error, loading, storeName, amount })
         <p className="font-medium">{storeName || 'Toko'}</p>
         <p className="num text-2xl font-semibold">{formatRupiah(amount)}</p>
       </div>
+      
+      {/* Tampilkan warning kecil jika nominal otomatis gagal, tapi QR tetap muncul */}
+      {error && <p className="text-xs text-[var(--danger)] text-center">{error}</p>}
+
       <div className="rounded-md border border-[var(--line)] bg-white p-4">
         <QRCodeSVG value={payload} size={240} level="M" />
       </div>
-      <p className="muted text-center text-sm">Minta pembeli memindai QR ini, lalu pastikan notifikasi pembayaran sudah masuk.</p>
+      <p className="muted text-center text-sm">Minta pembeli memindai QR ini.</p>
     </div>
   );
 }
