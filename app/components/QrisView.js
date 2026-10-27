@@ -6,7 +6,6 @@ import { formatRupiah } from '../../lib/format';
 export default function QrisView({ payload, error, loading, storeName, amount }) {
   if (loading) return <p className="muted py-10 text-center">Memuat...</p>;
 
-  // Jika benar-benar tidak ada payload, baru tampilkan error penuh
   if (!payload) {
     return (
       <div className="alert" role="alert">
@@ -22,7 +21,6 @@ export default function QrisView({ payload, error, loading, storeName, amount })
         <p className="num text-2xl font-semibold">{formatRupiah(amount)}</p>
       </div>
       
-      {/* Tampilkan warning kecil jika nominal otomatis gagal, tapi QR tetap muncul */}
       {error && <p className="text-xs text-[var(--danger)] text-center">{error}</p>}
 
       <div className="rounded-md border border-[var(--line)] bg-white p-4">
