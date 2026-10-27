@@ -1,0 +1,26 @@
+{
+  "name": "nextjs-mysql-crud",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.6.2",
+    "dotenv": "^18.0.9",
+    "lucide-react": "^1.62.0",
+    "mysql2": "^3.9.7",
+    "next": "14.2.5",
+    "postcss": "^8.5.32",
+    "qrcode.react": "^4.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3"
+  }
+}
