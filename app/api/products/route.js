@@ -1,27 +1,15 @@
+import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
-import { json, badRequest, readJson, serverError } from '../../../lib/http';
 import { parseProduct } from '../../../lib/validate';
 
 export const dynamic = 'force-dynamic';
 
-const toProduct = (r) => ({
-  id: r.id,
-  name: r.name,
-  category: r.category,
-  price: Math.round(Number(r.price)),
-  image: r.image,
-});
-
-async function listProducts(db) {
-  const [rows] = await db.query('SELECT id, name, category, price, image FROM products ORDER BY category, name');
-  return rows.map(toProduct);
-}
-
 export async function GET() {
   try {
-    return json({ products: await listProducts(pool) });
-  } catch (err) {
-    return serverError(err, 'GET /api/products');
+    const [rows] = await pool.query('SELECT * FROM products');
+    return NextResponse.json({ products: rows });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
