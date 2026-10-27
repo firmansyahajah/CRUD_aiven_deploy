@@ -1,37 +1,41 @@
+import { NextResponse } from 'next/server';
 import pool from '../../../../lib/db';
-import { json, badRequest, notFound, readJson, serverError } from '../../../../lib/http';
-import { parseId, parseProduct } from '../../../../lib/validate';
+import { parseProduct, parseId } from '../../../../lib/validate';
 
 export const dynamic = 'force-dynamic';
 
 export async function PUT(request, { params }) {
-  const id = parseId((await params).id);
-  if (!id) return badRequest('ID tidak valid.');
-  const body = await readJson(request);
-  if (!body) return badRequest('Data tidak valid.');
-  const { value, error } = parseProduct(body);
-  if (error) return badRequest(error);
-
   try {
+    const id = parseId(params.id);
+    const body = await request.json();
+    const product = parseProduct(body);
+
     const [result] = await pool.query(
-      'UPDATE products SET name = ?, category = ?, price = ?, image = ? WHERE id = ?',
-      [value.name, value.category, value.price, value.image, id]
+      'UPDATE products SET name = ?, description = ?, price = ?, category = ?, image = ? WHERE id = ?',
+      [product.name, product.description, product.price, product.category, product.image, id]
     );
-    if (result.affectedRows === 0) return notFound('Menu tidak ditemukan.');
-    return json({ product: { id, ...value } });
-  } catch (err) {
-    return serverError(err, 'PUT /api/products/[id]');
+
+    if (result.affectedRows === 0) {
+      return NextResponse.json({ error: 'Produk tidak ditemukan.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ product: { id, ...product } });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
 
-export async function DELETE(_request, { params }) {
-  const id = parseId((await params).id);
-  if (!id) return badRequest('ID tidak valid.');
+export async function DELETE(request, { params }) {
   try {
+    const id = parseId(params.id);
     const [result] = await pool.query('DELETE FROM products WHERE id = ?', [id]);
-    if (result.affectedRows === 0) return notFound('Menu tidak ditemukan.');
-    return json({ ok: true });
-  } catch (err) {
-    return serverError(err, 'DELETE /api/products/[id]');
+    
+    if (result.affectedRows === 0) {
+      return NextResponse.json({ error: 'Produk tidak ditemukan.' }, { status: 404 });
+    }
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
