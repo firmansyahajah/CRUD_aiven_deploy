@@ -7,9 +7,8 @@ import { useStore } from '../hooks/useStore';
 import { formatNumber, formatRupiah } from '../../lib/format';
 import { buildDynamicQris } from '../../lib/qris.mjs';
 
-// 👇 INI ADALAH QRIS DUMMY (PALSU) UNTUK LATIHAN 👇
-// Uang tidak akan berpindah ke mana-mana jika ini di-scan.
-const STATIC_QRIS = "00020101021126610014ID.CO.QRIS.WWW0215ID12345678901230303UMI51440014ID.CO.QRIS.WWW0215ID123456789012305204581253033605802ID5910KOPI TEST6007JAKARTA61051234563045E9C"; 
+// 👇 INI ADALAH QRIS DUMMY YANG VALID (Aman untuk latihan) 👇
+const STATIC_QRIS = "00020101021126570014ID.CO.QRIS.WWW0215ID12345678901230303UMI51440014ID.CO.QRIS.WWW0215ID123456789012305204581253033605802ID5910KOPI TEST6007JAKARTA6105123456304D87B"; 
 
 export default function PaymentDialog({ open, onClose }) {
   return (
@@ -29,19 +28,16 @@ function PaymentBody({ onClose }) {
   const receivedNum = Number(received || 0);
   const diff = receivedNum - total;
 
-  // Logic QRIS menggunakan file qris.mjs kamu
   const qris = useMemo(() => {
-    if (!STATIC_QRIS) {
-      return { error: 'String QRIS belum diatur.' };
-    }
+    if (!STATIC_QRIS) return { error: 'String QRIS belum diatur.' };
     
     try {
       // Membuat QRIS dinamis (menyisipkan nominal total belanja)
       return { payload: buildDynamicQris(STATIC_QRIS, total) };
     } catch (err) {
       console.warn("Gagal membuat QRIS dinamis:", err.message);
-      // Fallback ke statis biasa
-      return { payload: STATIC_QRIS, error: 'Gagal memuat nominal otomatis. Silakan ketik manual.' };
+      // Jika gagal, fallback ke QRIS statis biasa (pembeli ketik manual)
+      return { payload: STATIC_QRIS, error: 'Nominal otomatis gagal dimuat. Pembeli harus mengetik nominal manual.' };
     }
   }, [total]);
 
@@ -101,7 +97,7 @@ function PaymentBody({ onClose }) {
       ) : (
         <QrisView 
           {...qris} 
-          storeName="Kasir Latihan" // Nama toko di-hardcode
+          storeName="Kasir Latihan" 
           amount={total} 
         />
       )}
